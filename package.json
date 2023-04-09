@@ -1,7 +1,7 @@
 {
   "name": "alphanumeric-sequence",
   "version": "1.0.0",
-  "description": "Alphanumeric sequence generator by remembering last value",
+  "description": "Calculate next alphanumeric string in sequence",
   "main": "index.js",
   "scripts": {
     "build": "rimraf ./build && tsc"

@@ -1,70 +1,78 @@
 /**
- * Alphanumeric sequence string generator
+ * Options for generating sequence
  */
-export class Generator {
-  private lastVal = '';
-  private length;
-  constructor(length:number) {
-    if (length<2) throw new Error("length must be at least 2");
-    this.length = length;
-  }
+export interface Options {
   /**
-   * Reset the generator
-   * @param val Inital value
+   * Length must be at least 2
    */
-  reset(val?: string):void {
-    this.lastVal = val || '';
-  }
+  length: number;
   /**
-   * Peek the next value
-   * @returns string
+   * Increase length when end of sequence is reached
    */
-  peek(): string {
-    let last = `${this.lastVal}`;
-    let result = `A${'0'.padStart(this.length, '0')}`;
-    if (last.length>=this.length) {
-      let [ alpha, digits ] = last.split(/(?<=\D)(?=\d)/);
-      if (digits) {
-        const newNum = Number(digits) + 1;
-        const newNumStr = `${newNum}`.padStart(digits.length, '0');
-        if (digits.length < newNumStr.length) {
-          //REACHED all 9's, increase the last alpha char and make rest zeros
-          const lastChar = alpha.charCodeAt(alpha.length - 1);
-          if (lastChar === 122) {// z
-            if (digits.length === 1)
-              result = `${alpha}A`;
-            else
-              result = `${alpha}A${'0'.padStart(digits.length-1, '0')}`;
-          } else if (lastChar === 90) { // Z
-            result = `${alpha.substring(0, alpha.length -1)}a${'0'.padStart(digits.length, '0')}`
-          } else {
-            result = `${alpha.substring(0, alpha.length -1)}${String.fromCharCode(lastChar+1)}${'0'.padStart(digits.length, '0')}`
-          }
+  autoIncreaseLength?: boolean;
+}
+
+/**
+ * Calculate next alphanumeric string in sequence
+ * 
+ * @param lastVal calculate based on last value or start from A0..
+ * @param options length or autoincrease
+ * @returns 
+ */
+export function computeNext(lastVal: string | null, options: Options = {
+  length: 2,
+  autoIncreaseLength: false
+}): string | null {
+  const length = options.length || 2;
+  let last = `${lastVal || ''}`;
+  let result = 'A'.padEnd(length, '0');
+  if (last.length >= length) {
+    let [alpha, digits] = last.split(/(?<=\D)(?=\d)/);
+    const lastChar = `${alpha || ''}`.charCodeAt(alpha.length - 1);
+    const secLastChar = `${alpha || ''}`.charCodeAt(alpha.length - 2);
+    if (digits) {
+      const newNum = Number(digits) + 1;
+      const newNumStr = `${newNum}`.padStart(digits.length, '0');
+      if (digits.length < newNumStr.length) {
+        //REACHED all 9's, increase the last alpha char and make rest zeros
+        if (lastChar === 122) {// z
+          if (secLastChar === 122) {// z
+            result = `${alpha.substring(0, alpha.length - 2)}Aa`.padEnd(length, '0');
+          } else if (secLastChar < 90) { // < Z
+            result = `${alpha.substring(0, alpha.length - 2)}${String.fromCharCode(secLastChar + 1)}a`.padEnd(length, '0');
+          } else if (digits.length === 1) {
+            result = `${alpha}A`;
+          } else
+            result = `${alpha}A${'0'.padStart(digits.length - 1, '0')}`;
+        } else if (lastChar === 90) { // Z
+          result = `${alpha.substring(0, alpha.length - 1)}a${'0'.padStart(digits.length, '0')}`
         } else {
-          result = `${alpha}${newNumStr}`;
+          result = `${alpha.substring(0, alpha.length - 1)}${String.fromCharCode(lastChar + 1)}${'0'.padStart(digits.length, '0')}`
         }
       } else {
-        const lastChar = alpha.charCodeAt(alpha.length - 1);
-        if (lastChar === 122) {// z
-          // no digits to increase, so add zero to the right
-          result = `${alpha}0`;
-        } else if (lastChar === 90) { // Z
-          result = `${alpha.substring(0, alpha.length -1)}a`;
+        result = `${alpha}${newNumStr}`;
+      }
+    } else {
+      if (lastChar === 122) {// z
+        // no digits to increase
+        if (secLastChar === 122) {// z
+          result = `${alpha.substring(0, alpha.length - 2)}Aa`.padEnd(length, '0');
+        } else if (secLastChar < 90) { // < Z
+          result = `${alpha.substring(0, alpha.length - 2)}${String.fromCharCode(secLastChar + 1)}a`.padEnd(length, '0');
+        } else if (options.autoIncreaseLength) {
+          //start from beginning by increasing length
+          result = 'A'.padEnd(alpha.length + 1, '0');
         } else {
-          // increase last char
-          result = `${alpha.substring(0, alpha.length -1)}${String.fromCharCode(lastChar+1)}`;
+          //reached end
+          return null;
         }
+      } else if (lastChar === 90) { // Z
+        result = `${alpha.substring(0, alpha.length - 1)}a`;
+      } else {
+        // increase last char
+        result = `${alpha.substring(0, alpha.length - 1)}${String.fromCharCode(lastChar + 1)}`;
       }
     }
-    return result;
   }
-  /**
-   * Get the next value
-   * @returns string
-   */
-  getNext():string {
-    const result = this.peek();
-    this.lastVal = result;
-    return result;
-  }
+  return result;
 }
