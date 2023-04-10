@@ -5,34 +5,47 @@ Generate alphanumeric sequence by remembering last value
 # Usage
 
 ```javascript
-const gen = new Generator(6);
-gen.reset('zY7838');
-console.log(gen.getNext());
-console.log(gen.getNext());
+let value = 'zY7838';
+value = computeNext(value, { length: 6, autoIncreaseLength: false });
+console.log(value);
+value = computeNext(value, { length: 6, autoIncreaseLength: false });
+console.log(value);
 // zY7839
 // zY7840
 ```
 
 # Example Sequence
 
-A00000
-A00001
-A00002
+```
+A000
 ...
-Z99999
-a00000
-a00001
+Z999
+a000
 ...
-z99999
-zA0000
-zZ9999
-za0000
+z999
+zA00
 ...
-zzzzzz
-zzzzzzA
-zzzzzzB
+zz99
 ...
-zzzzzzZ
-zzzzzzzA
+Aa00
 ...
-and so on
+Aa99
+Ab00
+...
+Az99
+Ba00
+...
+Bz99
+...
+Zz99
+ZzA0
+...
+Zzz9
+ZAa0
+...
+ZAz0
+...
+ZZz9
+...
+ZZZz
+```

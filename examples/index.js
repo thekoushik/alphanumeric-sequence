@@ -1,13 +1,13 @@
 const { computeNext } = require('../build/index');
 
 (async function () {
-  let last = 'Zg9008';
+  let last = 'z999';
   do {
-    last = computeNext(last, { length: 6, autoIncreaseLength: false });
+    last = computeNext(last, { length: 4, autoIncreaseLength: false });
     console.log(last);
   } while (last);
   //zz99
-  //====
+  //....
   //Aa00
   //Aa99
   //Ab00
@@ -18,7 +18,7 @@ const { computeNext } = require('../build/index');
   //Bz99
   //....
   //Zz99
-  /////////////
+  //....
   //ZzA0
   //....
   //Zzz9
